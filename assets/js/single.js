@@ -1,4 +1,5 @@
 var issueContainerEl = document.querySelector("#issues-container");
+var limitWarning = document.querySelector('#limit-warning');
 
 var getRepoIssues = function(repo) {
     console.log(repo);
@@ -6,7 +7,11 @@ var getRepoIssues = function(repo) {
     fetch(apiUrl).then(function(response) {
         if (response.ok) {
             response.json().then(function(data){
-                displayIssues(data)
+                displayIssues(data);
+                if (response.headers.get("link")) {
+                    displayWarning(repo)
+                }
+
             });
         }
         else {
@@ -20,7 +25,7 @@ var displayIssues = function(issues) {
         issueContainerEl.textContent = "this repo has no open issues!";
         return;
     }
-    for (var i = 0; 1 < issues.length; i++) {
+    for (var i = 0; i < issues.length; i++) {
         var issueEl = document.createElement("a");
         issueEl.classList = "list-item flex-row justify-space-between align-content-center";
         issueEl.setAttribute("href", issues[i].html_url);
@@ -44,4 +49,16 @@ var displayIssues = function(issues) {
     }
 }
 
-getRepoIssues("facebook/react");
+var displayWarning = function(repo) {
+    limitWarning.textContent = "to see more than 30 issues, visit ";
+    
+    var linkEl = document.createElement("a");
+    linkEl.textContent = "See More Issuses on GitHub.com";
+    linkEl.setAttribute("href", "https://github.com/" + repo + "/issues");
+    linkEl.setAttribute("target", "_blank");
+
+    // append to warning container
+    limitWarning.appendChild(linkEl);
+}
+
+getRepoIssues("angular/angular");
